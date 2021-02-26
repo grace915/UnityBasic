@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerBall : MonoBehaviour
 {
@@ -28,6 +29,10 @@ public class PlayerBall : MonoBehaviour
             isJump = true;
             rigid.AddForce(new Vector3(0, jumpPower, 0), ForceMode.Impulse);
         }
+
+        if(transform.position.y < -10)
+            SceneManager.LoadScene("Example1_" + manager.stage);
+
     }
 
     // Update is called once per frame
@@ -53,11 +58,20 @@ public class PlayerBall : MonoBehaviour
             itemCount++;
             audio.Play();
             other.gameObject.SetActive(false);
-        } else if(other.tag == "Finish" ){
+            manager.GetItem(itemCount);
+        } 
+        else if(other.tag == "Finish" ){
+            if(itemCount == manager.totalItemCount){
+                //Game Clear
+                if(manager.stage == 2)
+                    SceneManager.LoadScene(0);
+                SceneManager.LoadScene(manager.stage+1);
+
+            }else{
+                //Restart
+                SceneManager.LoadScene(manager.stage);
+            }
             
-            itemCount++;
-            audio.Play();
-            other.gameObject.SetActive(false);
         }
     }
 }
