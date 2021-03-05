@@ -62,7 +62,7 @@ public class PlayerMove : MonoBehaviour
     {
         //move speed
         float h = Input.GetAxisRaw("Horizontal");
-        rigid.AddForce(Vector2.right * h, ForceMode2D.Impulse);
+        rigid.AddForce(Vector2.right * h*2, ForceMode2D.Impulse);
 
         //max speed
         if (rigid.velocity.x > maxSpeed)//right max speed
@@ -77,7 +77,7 @@ public class PlayerMove : MonoBehaviour
             RaycastHit2D rayHit = Physics2D.Raycast(rigid.position, Vector3.down, 1, LayerMask.GetMask("Platform"));
             if (rayHit.collider != null)
             {
-                if (rayHit.distance < 0.5f)
+                if (rayHit.distance < 0.7f)
                 {
                     animator.SetBool("isJumping", false);
                     jumpCount = 0;
@@ -87,5 +87,42 @@ public class PlayerMove : MonoBehaviour
             }
         }
 
+   
+
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Enemy")
+        {
+            OnDamaged(collision.transform.position);
+        }
+    }
+
+    //무적상태
+    void OnDamaged(Vector2 targetPos)
+    {
+        //change layer
+        gameObject.layer = 11;
+
+        //view alpha
+        spriteRenderer.color = new Color(1, 1, 1, 0.4f);
+
+        //reaction force
+
+        int dirc = transform.position.x - targetPos.x > 0 ? 1 : -1;
+        rigid.AddForce(new Vector2(dirc, 1) * 7, ForceMode2D.Impulse);
+
+        //animation
+        animator.SetTrigger("doDamaged");
+
+        Invoke("OffDamaged", 3);
+
+    }
+
+    void OffDamaged()
+    {
+        gameObject.layer = 10;
+        spriteRenderer.color = new Color(1, 1, 1, 1);
     }
 }
