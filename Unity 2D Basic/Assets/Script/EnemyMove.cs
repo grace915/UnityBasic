@@ -9,6 +9,7 @@ public class EnemyMove : MonoBehaviour
     public int nextMove;
     Animator anim;
     SpriteRenderer spriteRenderer;
+    CapsuleCollider2D capsuleCollider;
 
     // Start is called before the first frame update
     void Awake()
@@ -17,6 +18,7 @@ public class EnemyMove : MonoBehaviour
         anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         anim.SetInteger("WalkSpeed", 0);
+        capsuleCollider = GetComponent<CapsuleCollider2D>();
 
         Invoke("Think", 5);
     }
@@ -69,6 +71,27 @@ public class EnemyMove : MonoBehaviour
         CancelInvoke();
         Invoke("Think", 5);
 
+    }
+
+    public void OnDamaged()
+    {
+        //Sprite Alpha
+        spriteRenderer.color = new Color(1, 1, 1, 0.4f);
+        //Sprite Flip y
+        spriteRenderer.flipY = true;
+        //Collider disable
+        capsuleCollider.enabled = false;
+
+        //Die Efffect jump
+        rigid.AddForce(Vector2.up * 5, ForceMode2D.Impulse);
+
+        //Distroy
+        Invoke("DeActive", 5);
+    }
+
+    void DeActive()
+    {
+        gameObject.SetActive(false);
     }
 
 }

@@ -95,8 +95,29 @@ public class PlayerMove : MonoBehaviour
     {
         if (collision.gameObject.tag == "Enemy")
         {
-            OnDamaged(collision.transform.position);
+            //Attack
+            if(rigid.velocity.y < 0 && transform.position.y > collision.transform.position.y)
+            {
+                OnAttack(collision.transform);
+            }
+            else //Damaged
+            {
+                OnDamaged(collision.transform.position);
+            }
+            
         }
+    }
+
+    void OnAttack(Transform enemy)
+    {
+        //Point
+
+        //Reaction Force
+        rigid.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
+
+        //Enemy Die
+        EnemyMove enemyMove = enemy.GetComponent<EnemyMove>();
+        enemyMove.OnDamaged();
     }
 
     //무적상태
@@ -111,7 +132,7 @@ public class PlayerMove : MonoBehaviour
         //reaction force
 
         int dirc = transform.position.x - targetPos.x > 0 ? 1 : -1;
-        rigid.AddForce(new Vector2(dirc, 1) * 7, ForceMode2D.Impulse);
+        rigid.AddForce(new Vector2(dirc, 1) * 10, ForceMode2D.Impulse);
 
         //animation
         animator.SetTrigger("doDamaged");
