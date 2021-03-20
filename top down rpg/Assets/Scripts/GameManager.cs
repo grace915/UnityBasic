@@ -6,54 +6,91 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public TalkManager talkManager;
-    public GameObject talkPanel;
-    public Text talkText;
+    public QuestManager questManager;
+    public Animator talkPanel;
+    // public Text talkText;
+    public TypeEffect talk;
     public GameObject scanObject;
     public Image portraitImg;
+    public Animator portraitAnim;
+    public Sprite prevSprite;
     public bool isAction;
     public int talkIndex;
+
+
     // Start is called before the first frame update
 
-    private void Awake()
+    private void Start()
     {
-        talkPanel.SetActive(false);
+        Debug.Log(questManager.CheckQuest());
     }
+
     public void Action(GameObject scanObj)
     {
 
+        //get current object
         scanObject = scanObj;
         ObjectData objectData = scanObj.GetComponent<ObjectData>();
         Talk(objectData.id, objectData.isNpc);
  
-
-        talkPanel.SetActive(isAction);
+        //visible talk for action
+        talkPanel.SetBool("isShow", isAction);
        
     }
     void Talk(int id, bool isNpc)
     {
-        string talkData = talkManager.GetTalk(id, talkIndex);
+        int questTalkIndex = 0;
+        string talkData = "";
 
+        //set talk data
+        if (talk.isAnim)
+        {
+            talk.SetMsg("");
+            return;
+
+        }
+            
+        else
+        {
+            questTalkIndex = questManager.GetQuestTalkIndex(id);
+            talkData = talkManager.GetTalk(id + questTalkIndex, talkIndex);
+
+        }
+
+        //end talk
         if (talkData == null)
         {
             isAction = false;
             talkIndex = 0;
+            Debug.Log(questManager.CheckQuest(id));
             return;
         }
             
-
+        //continuew talk
         if (isNpc)
         {
-            talkText.text = talkData.Split(':')[0];
+            talk.SetMsg(talkData.Split(':')[0]);
+            //show portrait
             portraitImg.sprite = talkManager.GetPortrait(id, int.Parse(talkData.Split(':')[1]));
             portraitImg.color = new Color(1, 1, 1, 1);
+
+            //portrit animation
+            if(prevSprite != portraitImg.sprite)
+            {
+                portraitAnim.SetTrigger("doEffect");
+                prevSprite = portraitImg.sprite;
+            }
+                
         }
         else
         {
-            talkText.text = talkData;
+            talk.SetMsg(talkData);
+
+            //hideportrait
             portraitImg.color = new Color(1, 1, 1, 0);
         }
         isAction = true;
-        talkIndex++;
+        talkIndex++;    
 
     }
 
